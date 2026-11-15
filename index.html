@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RelayGuard – IBM Z Datathon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f4f4f4;--layer:#ffffff;--text:#161616;--muted:#525252;--line:#e0e0e0;--blue:#0f62fe;--blue-d:#002d9c;--hdr:#161616;--red:#da1e28;--green:#198038;--amber:#f1c21b;--tint:#edf5ff;
+--sans:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;--mono:"IBM Plex Mono",Menlo,Consolas,monospace;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161616;--layer:#262626;--text:#f4f4f4;--muted:#c6c6c6;--line:#393939;--blue:#78a9ff;--hdr:#000;--red:#fa4d56;--green:#42be65;--tint:#1c2a45}}
+:root[data-theme="dark"]{--bg:#161616;--layer:#262626;--text:#f4f4f4;--muted:#c6c6c6;--line:#393939;--blue:#78a9ff;--hdr:#000;--red:#fa4d56;--green:#42be65;--tint:#1c2a45}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:400 14px/1.43 var(--sans)}
+header{background:var(--hdr);color:#f4f4f4;display:flex;align-items:center;gap:16px;padding:0 16px;height:48px;border-bottom:1px solid #393939}
+header b{font-weight:600}header span{color:#c6c6c6}
+header .sp{flex:1}
+header button{background:none;border:1px solid #6f6f6f;color:#f4f4f4;padding:4px 12px;font:inherit;cursor:pointer}
+.band{background:#0f62fe;color:#fff;padding:20px 16px}
+.band h1{margin:0;font:600 28px/1.2 var(--sans)}
+.band p{margin:6px 0 0;max-width:70ch;color:#e5f0ff}
+main{max-width:1280px;margin:0 auto;padding:16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2px;background:var(--line);border:1px solid var(--line)}
+.kpi{background:var(--layer);padding:14px 16px}
+.kpi small{color:var(--muted)}.kpi div{font:300 32px/1.2 var(--sans);margin-top:4px}
+.grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(300px,2fr);gap:16px;margin-top:16px}
+@media(max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}.band h1{font-size:22px}}
+.card{background:var(--layer);border:1px solid var(--line)}
+.card h2{margin:0;padding:12px 16px;font:600 16px var(--sans);border-bottom:1px solid var(--line)}
+.bar{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.btn{background:var(--blue);color:#fff;border:0;padding:10px 16px;font:500 14px var(--sans);cursor:pointer}
+:root[data-theme="dark"] .btn{color:#161616}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#161616}}
+.btn.sec{background:transparent;color:var(--blue);border:1px solid var(--blue)}
+.btn:hover{filter:brightness(1.1)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th{text-align:left;font-weight:600;background:var(--bg);padding:10px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody tr{cursor:pointer}tbody tr:hover{background:var(--tint)}
+tr.sel{background:var(--tint);box-shadow:inset 3px 0 var(--blue)}
+.num{font-family:var(--mono);text-align:right}
+.tag{display:inline-block;padding:1px 8px;border-radius:12px;font-size:12px;font-weight:500}
+.t-red{background:#ffd7d9;color:#750e13}.t-green{background:#a7f0ba;color:#044317}.t-gray{background:#e0e0e0;color:#161616}.t-blue{background:#d0e2ff;color:#001d6c}
+.empty{padding:32px 16px;color:var(--muted)}
+.d{padding:16px}.d dl{display:grid;grid-template-columns:110px 1fr;gap:4px 8px;margin:0 0 16px}
+.d dt{color:var(--muted)}.d dd{margin:0;font-family:var(--mono)}
+.row{display:grid;grid-template-columns:130px 1fr 56px;gap:8px;align-items:center;margin:6px 0;font-size:13px}
+.track{position:relative;height:14px;background:var(--bg)}
+.track i{position:absolute;top:0;bottom:0}
+.track:before{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--muted)}
+.note{font-size:12px;color:var(--muted);margin-top:12px}
+input[type=text]{width:100%;padding:10px;border:0;border-bottom:1px solid var(--muted);background:var(--bg);color:var(--text);font:inherit;margin:8px 0}
+input[type=range]{accent-color:var(--blue);width:200px}
+.msg{padding:8px 16px;font-size:13px;min-height:34px}.msg.err{color:var(--red)}.msg.ok{color:var(--green)}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;padding:16px}
+.form label{display:block;font-size:12px;color:var(--muted)}
+.form input,.form select{width:100%;padding:9px;border:0;border-bottom:1px solid var(--muted);background:var(--bg);color:var(--text);font:inherit}
+dialog{width:min(760px,92vw);background:var(--layer);color:var(--text);border:1px solid var(--line);padding:0}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog textarea{width:100%;height:260px;font:12px var(--mono);background:var(--bg);color:var(--text);border:0;padding:12px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}@media(max-width:900px){.two{grid-template-columns:minmax(0,1fr)}}.card{min-width:0}.bar .btn{flex:0 0 auto}
+footer{max-width:1280px;margin:8px auto 24px;padding:0 16px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<header>
+<b>IBM</b><span>Z Datathon</span><span class="sp"></span><span>RelayGuard</span>
+<button id="theme" type="button">Switch theme</button>
+</header>
+<section class="band">
+<h1>RelayGuard: real-time fraud risk scoring on IBM LinuxONE</h1>
+<p>IBM Z Datathon 2026 – Real-time AI for Critical Decisions. Replay sample PaySim-style payments, score your own test payment, see why each score was produced and record an analyst decision. In this page a small rule-based scorer stands in for the LinuxONE gradient-boosting model. No real funds move.</p>
+</section>
+<main>
+<div class="kpis" aria-live="polite">
+<div class="kpi"><small>Payments scored</small><div id="k-n">0</div></div>
+<div class="kpi"><small>Alerts raised</small><div id="k-a">0</div></div>
+<div class="kpi"><small>Reviewed</small><div id="k-r">0</div></div>
+<div class="kpi"><small>Replay remaining</small><div id="k-m">0</div></div>
+<div class="kpi"><small>Last scoring time</small><div id="k-l">–</div></div>
+</div>
+<div class="grid">
+<section class="card">
+<h2>Live payment stream</h2>
+<div class="bar">
+<button class="btn" id="next" type="button">Score next payment</button>
+<button class="btn sec" id="export" type="button">Export review CSV</button>
+<button class="btn sec" id="reset" type="button">Reset</button>
+<label>Alert threshold <b id="tv" style="font-family:var(--mono)">0.986</b><br>
+<input id="th" type="range" min="0.5" max="0.999" step="0.001" value="0.986" aria-label="Alert threshold"></label>
+</div>
+<div class="msg" id="msg" role="status"></div>
+<div class="scroll"><table><thead><tr><th>ID</th><th>Step</th><th>Type</th><th class="num">Amount</th><th class="num">Score</th><th>Status</th><th>Review</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="empty" id="empty">No payments yet. Select Score next payment to start the replay.</div>
+</section>
+<section class="card">
+<h2>Why this score?</h2>
+<div id="detail"></div>
+</section>
+</div>
+<div class="two">
+<section class="card">
+<h2>Score a test payment</h2>
+<div class="form">
+<div><label for="f-id">Transaction ID</label><input id="f-id" value="TX-1042"></div>
+<div><label for="f-step">Step (hour)</label><input id="f-step" type="number" min="0" value="216"></div>
+<div><label for="f-type">Type</label><select id="f-type"><option>TRANSFER</option><option>CASH_OUT</option><option>PAYMENT</option><option>CASH_IN</option><option>DEBIT</option></select></div>
+<div><label for="f-from">Sender</label><input id="f-from" value="C100"></div>
+<div><label for="f-to">Recipient</label><input id="f-to" value="C900"></div>
+<div><label for="f-amt">Amount</label><input id="f-amt" type="number" step="0.01" value="5000"></div>
+</div>
+<div class="bar" style="border-top:1px solid var(--line);border-bottom:0"><button class="btn" id="manual" type="button">Score payment</button><span class="note" style="margin:0">Needs a unique ID, positive amount, different sender and recipient, and a step no earlier than the latest event.</span></div>
+</section>
+<section class="card">
+<h2>Model performance: sequence v4 vs previous V2</h2>
+<div class="scroll"><table style="min-width:0"><thead><tr><th>Held-out test, 24,264 payments</th><th class="num">V2</th><th class="num">v4</th></tr></thead><tbody>
+<tr><td>Frauds caught (of 268)</td><td class="num">128</td><td class="num"><b>204</b></td></tr>
+<tr><td>False alerts</td><td class="num">112</td><td class="num"><b>8</b></td></tr>
+<tr><td>Recall</td><td class="num">47.8%</td><td class="num"><b>76.1%</b></td></tr>
+<tr><td>Precision</td><td class="num">53.3%</td><td class="num"><b>96.2%</b></td></tr>
+<tr><td>F1</td><td class="num">0.504</td><td class="num"><b>0.850</b></td></tr>
+<tr><td>Average precision</td><td class="num">0.475</td><td class="num"><b>0.878</b></td></tr>
+</tbody></table></div>
+<div class="note" style="padding:0 16px 14px">v4 still misses 64 frauds. Synthetic data; scores are uncalibrated and this is not a real-bank claim.</div>
+</section>
+</div>
+</main>
+<dialog id="dlg"><h2 style="margin:0;padding:12px 16px;font:600 16px var(--sans);border-bottom:1px solid var(--line)">Review log (CSV)</h2><textarea id="csv" readonly aria-label="Review CSV"></textarea><div class="bar" style="border:0"><button class="btn" id="copy" type="button">Copy CSV</button><button class="btn sec" id="close" type="button">Close</button><span class="note" id="cm" style="margin:0"></span></div></dialog>
+<footer>Built by Armaan Kumar and Rishi Chowdhury for the IBM Z Datathon. Sample payments and the in-page scorer are illustrative; scores are uncalibrated and results on synthetic PaySim data do not show real-bank performance. Model: paysim-sequence-v4.</footer>
+<script>
+var G=["Payment amount","Payment type","Sender history","Simulation timing","Recipient history","Recent payment stream"],BASE=0.04,TYPES=["TRANSFER","CASH_OUT","PAYMENT","CASH_IN","DEBIT"];
+var REPLAY=[
+["PS-0000412","TRANSFER",181000,"C1305486145","C553264065",212,[.23,.26,.09,.02,.13,.223]],
+["PS-0000987","PAYMENT",1864.28,"C1231006815","M1979787155",212,[-.01,-.02,0,0,-.005,-.005]],
+["PS-0001544","CASH_OUT",181000,"C840083671","C38997010",213,[.21,.24,.07,.03,.11,.27]],
+["PS-0002210","CASH_IN",160000,"C2048537720","C1190101712",213,[.02,-.02,0,0,.01,0]],
+["PS-0003075","TRANSFER",2806,"C1305486145","C1670993182",214,[.03,.12,.04,.01,.05,.20]],
+["PS-0003912","DEBIT",5337.77,"C1666544295","C1920110330",214,[-.01,-.02,0,0,0,0]],
+["PS-0004633","CASH_OUT",229133.94,"C905080434","C476402209",215,[.08,.2,.05,.02,.1,.1]],
+["PS-0005108","TRANSFER",1277212.77,"C1280323807","C1590550415",215,[.3,.25,.1,.03,.1,.173]],
+["PS-0005790","PAYMENT",742.5,"C77120941","M1470027725",216,[-.02,-.03,0,0,0,-.005]],
+["PS-0006244","TRANSFER",9400,"C2013999242","C1932181123",216,[.06,.14,.06,.01,.07,.02]]
+];
+var ri=0,shown=[],rev={},sel=null,scoreMs="–",draft={};
+var $=function(i){return document.getElementById(i)};
+function esc(t){return String(t).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function fmt(n){return n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function sc(d){return BASE+d[6].reduce(function(a,b){return a+b},0)}
+function say(t,k){var m=$("msg");m.textContent=t;m.className="msg "+(k||"")}
+function lastStep(){return shown.length?Math.max.apply(null,shown.map(function(d){return d[5]})):0}
+function contribs(type,amt,step,from,to){
+ var seenS=shown.some(function(d){return d[3]===from}),seenR=shown.some(function(d){return d[4]===to}),
+ match=shown.some(function(d){return (d[1]==="TRANSFER"||d[1]==="CASH_OUT")&&Math.abs(d[2]-amt)<0.005&&step-d[5]<=24});
+ var c=[Math.max(-.02,Math.min(.3,(Math.log(amt)/Math.LN10-3.5)*.12)),
+  type==="TRANSFER"?.24:type==="CASH_OUT"?.2:type==="PAYMENT"?-.03:type==="DEBIT"?-.01:-.02,
+  seenS?-.01:.06,(step%24)<6?.03:0,seenR?.01:.08,match?.22:0];
+ var tot=c.reduce(function(a,b){return a+b},0),tgt=Math.max(.001,Math.min(.999,BASE+tot))-BASE,k=tot?tgt/tot:1;
+ return c.map(function(v){return Math.round(v*k*1e6)/1e6});
+}
+function render(){
+ var T=parseFloat($("th").value),h="",al=0,rv=0;$("tv").textContent=T.toFixed(3);
+ shown.forEach(function(d){var s=sc(d),f=s>=T,r=(rev[d[0]]||{}).r||"Unreviewed";if(f)al++;if(r!=="Unreviewed")rv++;
+  h="<tr tabindex='0' role='button' data-id='"+esc(d[0])+"' class='"+(sel===d[0]?"sel":"")+"'><td>"+esc(d[0])+"</td><td class='num'>"+d[5]+"</td><td>"+d[1]+"</td><td class='num'>"+fmt(d[2])+"</td><td class='num'>"+s.toFixed(4)+"</td><td><span class='tag "+(f?"t-red":"t-green")+"'>"+(f?"Alert":"Clear")+"</span></td><td><span class='tag "+(r==="Needs investigation"?"t-blue":"t-gray")+"'>"+r+"</span></td></tr>"+h});
+ $("rows").innerHTML=h;$("empty").style.display=shown.length?"none":"block";
+ $("k-n").textContent=shown.length;$("k-a").textContent=al;$("k-r").textContent=rv;$("k-m").textContent=REPLAY.length-ri;$("k-l").textContent=scoreMs;
+ $("next").disabled=ri>=REPLAY.length;$("next").style.opacity=ri>=REPLAY.length?.5:1;
+ detail();
+}
+function detail(){
+ var box=$("detail"),d=shown.filter(function(x){return x[0]===sel})[0];
+ var old=$("note");if(old&&sel)draft[sel]=old.value;
+ if(!d){box.innerHTML="<div class='empty'>Select a payment to see its score breakdown.</div>";return}
+ var s=sc(d),T=parseFloat($("th").value),f=s>=T,saved=rev[d[0]]||{},max=.35;
+ var bars=d[6].map(function(v,k){var w=Math.min(50,Math.abs(v)/max*50),st=v>=0?"left:50%;width:"+w+"%;background:#0f62fe":"right:50%;width:"+w+"%;background:#8a3ffc";
+  return "<div class='row'><span>"+G[k]+"</span><div class='track'><i style='"+st+"'></i></div><span style='font-family:var(--mono);text-align:right'>"+(v>=0?"+":"")+v.toFixed(3)+"</span></div>"}).join("");
+ var pos=d[6].map(function(v,k){return [v,G[k]]}).filter(function(x){return x[0]>.001}).sort(function(a,b){return b[0]-a[0]}).slice(0,2).map(function(x){return x[1].toLowerCase()});
+ var sum=(pos.length?pos.join(" and ")+" raised the score. ":"No group raised the score materially. ")+"The score of "+s.toFixed(4)+(f?" met or exceeded":" was below")+" the threshold of "+T.toFixed(3)+(f?"; review is suggested.":"; no alert.");
+ var nv=draft[d[0]]!==undefined?draft[d[0]]:(saved.note||"");
+ box.innerHTML="<div class='d'><dl><dt>ID</dt><dd style='overflow-wrap:anywhere'>"+esc(d[0])+"</dd><dt>Payment</dt><dd>"+d[1]+" "+fmt(d[2])+"</dd><dt>Sender</dt><dd>"+esc(d[3])+"</dd><dt>Recipient</dt><dd>"+esc(d[4])+"</dd><dt>Step</dt><dd>"+d[5]+"</dd><dt>Score</dt><dd>"+s.toFixed(4)+" vs threshold "+T.toFixed(3)+"</dd><dt>Decision</dt><dd>"+(f?"Alert raised":"No alert")+"</dd></dl>"+
+ "<div style='margin-bottom:8px'><b>Baseline "+BASE.toFixed(3)+"</b> plus contributions equals the score. Blue raised it, purple lowered it.</div>"+bars+
+ "<div style='margin-top:10px'>"+sum+"</div><div class='note'>Contributions reconcile to the score. They describe the model, not proof of fraud.</div>"+
+ "<input type='text' id='note' maxlength='1000' placeholder='Optional note for this review' aria-label='Review note' value=\""+esc(nv)+"\">"+
+ "<button class='btn' data-r='Needs investigation' type='button'>Needs investigation</button> <button class='btn sec' data-r='Dismissed' type='button'>Dismiss</button> <button class='btn sec' data-r='Unreviewed' type='button'>Clear review</button>"+
+ "<div class='note'>Current review: "+(saved.r||"Unreviewed")+(saved.note?" – "+esc(saved.note):"")+"</div></div>";
+}
+function add(d){var t=performance.now();var s=sc(d);scoreMs=(performance.now()-t).toFixed(3)+" ms";shown.push(d);sel=d[0];render()}
+$("next").onclick=function(){
+ if(ri>=REPLAY.length){say("Replay finished. Reset to start again.","");return}
+ var d=REPLAY[ri];
+ if(d[5]<lastStep()){say("Out-of-order payment: use step "+lastStep()+" or later. Reset before replaying earlier events.","err");return}
+ ri++;add(d);say("Scored "+d[0]+".","ok")};
+$("manual").onclick=function(){
+ var id=$("f-id").value.trim(),from=$("f-from").value.trim(),to=$("f-to").value.trim(),type=$("f-type").value,amt=parseFloat($("f-amt").value),step=parseInt($("f-step").value,10);
+ if(!id||id.length>100||!from||!to||from.length>100||to.length>100)return say("IDs must contain 1–100 characters.","err");
+ if(from===to)return say("Provide different sender and recipient IDs.","err");
+ if(!(amt>0)||!isFinite(amt))return say("Manual payment amount must be positive.","err");
+ if(isNaN(step)||step<0)return say("Step must be a non-negative whole number.","err");
+ if(TYPES.indexOf(type)<0)return say("Unsupported payment type.","err");
+ if(shown.some(function(d){return d[0]===id})||REPLAY.some(function(d,i){return i>=ri&&d[0]===id}))return say("Duplicate transaction ID.","err");
+ if(step<lastStep())return say("Out-of-order payment: use step "+lastStep()+" or later. Reset before replaying earlier events.","err");
+ var d=[id,type,amt,from,to,step,contribs(type,amt,step,from,to)];add(d);say("Scored "+id+" with score "+sc(d).toFixed(4)+".","ok");
+ $("f-id").value="TX-"+(1043+shown.length);};
+$("reset").onclick=function(){ri=0;shown=[];rev={};sel=null;draft={};scoreMs="–";$("f-id").value="TX-1042";say("Reset: active events cleared.","ok");render()};
+$("th").oninput=render;
+function pick(tr){if(tr){sel=tr.dataset.id;render()}}
+$("rows").onclick=function(e){pick(e.target.closest("tr"))};
+$("rows").onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(e.target.closest("tr"))}};
+$("detail").onclick=function(e){var b=e.target.closest("button[data-r]");if(!b||!sel)return;var n=$("note").value.slice(0,1000);
+ if(b.dataset.r==="Unreviewed"){delete rev[sel];delete draft[sel]}else{rev[sel]={r:b.dataset.r,note:n};delete draft[sel]}
+ say("Recorded: "+b.dataset.r+" for "+sel+".","ok");render()};
+function cell(v){v=String(v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+$("export").onclick=function(){var T=parseFloat($("th").value),L=[["id","step","type","amount","sender","recipient","score","flagged","review","note","model_version","threshold"].join(",")];
+ shown.forEach(function(d){var s=sc(d),r=rev[d[0]]||{};L.push([d[0],d[5],d[1],d[2],d[3],d[4],s.toFixed(4),s>=T,r.r||"Unreviewed",r.note||"","paysim-sequence-v4",T.toFixed(3)].map(cell).join(","))});
+ $("csv").value=L.join("\n");$("cm").textContent=shown.length?"":"No payments scored yet.";$("dlg").showModal()};
+$("close").onclick=function(){$("dlg").close()};
+$("copy").onclick=function(){var t=$("csv");t.select();var ok=false;try{ok=document.execCommand("copy")}catch(e){}
+ $("cm").textContent=ok?"Copied.":"Press Ctrl+C to copy the selected text."};
+$("theme").onclick=function(){var r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark"};
+render();
+</script>
+</body>
+</html>
